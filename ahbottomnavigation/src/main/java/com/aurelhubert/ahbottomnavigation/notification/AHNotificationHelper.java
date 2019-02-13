@@ -1,7 +1,7 @@
 package com.aurelhubert.ahbottomnavigation.notification;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
+import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 
 /**
  * @author repitch
