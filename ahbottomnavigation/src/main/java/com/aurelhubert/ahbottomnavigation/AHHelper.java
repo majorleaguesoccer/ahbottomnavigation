@@ -2,14 +2,14 @@ package com.aurelhubert.ahbottomnavigation;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import androidx.annotation.ColorInt;
-import androidx.core.graphics.drawable.DrawableCompat;
+import android.support.annotation.ColorInt;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -251,11 +251,11 @@ public class AHHelper {
 	 * @param context Context
 	 * @return Activity
 	 */
-	public static Activity unwrap(Context context) {
-		while (!(context instanceof Activity)) {
+	public static AppCompatActivity unwrap(Context context) {
+		while (!(context instanceof AppCompatActivity)) {
 			ContextWrapper wrapper = (ContextWrapper) context;
 			context = wrapper.getBaseContext();
 		}
-		return (Activity) context;
+		return (AppCompatActivity) context;
 	}
 }
