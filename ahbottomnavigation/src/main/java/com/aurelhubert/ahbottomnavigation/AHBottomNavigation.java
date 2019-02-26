@@ -398,7 +398,7 @@ public class AHBottomNavigation extends FrameLayout {
 
         float activeSize = resources.getDimension(R.dimen.bottom_navigation_text_size_active);
         float inactiveSize = resources.getDimension(R.dimen.bottom_navigation_text_size_inactive);
-        int activePaddingTop = (int) resources.getDimension(R.dimen.bottom_navigation_margin_top_active);
+
 
         if (titleActiveTextSize != 0 && titleInactiveTextSize != 0) {
             activeSize = titleActiveTextSize;
@@ -415,11 +415,14 @@ public class AHBottomNavigation extends FrameLayout {
             AHBottomNavigationItem item = items.get(itemIndex);
 
             boolean forceTint = item.getForceTint();
-            Log.w("WWW", "isClassic " + isClassic());
 
-            View view = inflater.inflate(R.layout.bottom_navigation_item, this, false);
+            int viewId = forceTint ? R.layout.bottom_navigation_item : R.layout.bottom_navigation_item_tintless;
+            int paddingTopId = forceTint ? R.dimen.bottom_navigation_margin_top_active : R.dimen.bottom_navigation_margin_top_active_tintless;
+
+            int activePaddingTop = (int) resources.getDimension(paddingTopId);
+            View view = inflater.inflate(viewId, this, false);
             FrameLayout container = (FrameLayout) view.findViewById(R.id.bottom_navigation_container);
-            ImageView icon = (ImageView) view.findViewById(R.id.bottom_navigation_item_icon);
+            ImageView icon = view.findViewById(R.id.bottom_navigation_item_icon);
             TextView title = (TextView) view.findViewById(R.id.bottom_navigation_item_title);
             TextView notification = (TextView) view.findViewById(R.id.bottom_navigation_notification);
 
@@ -544,9 +547,10 @@ public class AHBottomNavigation extends FrameLayout {
             final int itemIndex = i;
             AHBottomNavigationItem item = items.get(itemIndex);
             boolean forceTint = item.getForceTint();
-            Log.w("WWW", "isClassic " + isClassic());
 
-            View view = inflater.inflate(R.layout.bottom_navigation_small_item, this, false);
+            int layoutId = forceTint ? R.layout.bottom_navigation_small_item : R.layout.bottom_navigation_small_item_tintless;
+
+            View view = inflater.inflate(layoutId, this, false);
             ImageView icon = (ImageView) view.findViewById(R.id.bottom_navigation_small_item_icon);
             TextView title = (TextView) view.findViewById(R.id.bottom_navigation_small_item_title);
             TextView notification = (TextView) view.findViewById(R.id.bottom_navigation_notification);
@@ -664,8 +668,6 @@ public class AHBottomNavigation extends FrameLayout {
             if (!selectionAllowed) return;
         }
 
-        int activeMarginTop = (int) resources.getDimension(R.dimen.bottom_navigation_margin_top_active);
-        int inactiveMarginTop = (int) resources.getDimension(R.dimen.bottom_navigation_margin_top_inactive);
         float activeSize = resources.getDimension(R.dimen.bottom_navigation_text_size_active);
         float inactiveSize = resources.getDimension(R.dimen.bottom_navigation_text_size_inactive);
 
@@ -684,6 +686,12 @@ public class AHBottomNavigation extends FrameLayout {
                 view.setSelected(i == itemIndex);
             }
             boolean forceTint = items.get(i).getForceTint();
+
+            int activeMarginTopId = forceTint ? R.dimen.bottom_navigation_margin_top_active: R.dimen.bottom_navigation_margin_top_active_tintless;
+            int inActiveMarginTopId = forceTint ? R.dimen.bottom_navigation_margin_top_inactive : R.dimen.bottom_navigation_margin_top_inactive_tintless;
+
+            int activeMarginTop = (int) resources.getDimension(activeMarginTopId);
+            int inactiveMarginTop = (int) resources.getDimension(inActiveMarginTopId);
 
             // if selected
             if (i == itemIndex) {
@@ -789,7 +797,6 @@ public class AHBottomNavigation extends FrameLayout {
     }
 
 
-
     private Drawable getCurrentIcon(boolean isActive, boolean forceTint, AHBottomNavigationItem item) {
         Drawable icon = item.getDrawable(context);
         if (forceTint) {
@@ -806,8 +813,7 @@ public class AHBottomNavigation extends FrameLayout {
     }
 
 
-    protected Drawable convertToGrayscale(Drawable drawable)
-    {
+    protected Drawable convertToGrayscale(Drawable drawable) {
         ColorMatrix matrix = new ColorMatrix();
         matrix.setSaturation(0);
 
