@@ -21,6 +21,7 @@ public class AHBottomNavigationItem {
 	private String title = "";
 	private Drawable drawable;
 	private int color = Color.GRAY;
+	private boolean forceTint = true;
 	
 	private
 	@StringRes
@@ -42,6 +43,7 @@ public class AHBottomNavigationItem {
 		this.title = title;
 		this.drawableRes = resource;
 	}
+
 	
 	/**
 	 * @param title    Title
@@ -134,7 +136,7 @@ public class AHBottomNavigationItem {
 				return ContextCompat.getDrawable(context, drawableRes);
 			}
 		}
-		return drawable;
+		return drawable.getConstantState().newDrawable();
 	}
 	
 	public void setDrawable(@DrawableRes int drawableRes) {
@@ -145,5 +147,13 @@ public class AHBottomNavigationItem {
 	public void setDrawable(Drawable drawable) {
 		this.drawable = drawable;
 		this.drawableRes = 0;
+	}
+
+	public void setForceTint(boolean forceTint) {
+		this.forceTint = forceTint;
+	}
+
+	public boolean getForceTint() {
+		return this.forceTint;
 	}
 }

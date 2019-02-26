@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -40,7 +42,6 @@ import android.widget.TextView;
 
 import com.aurelhubert.ahbottomnavigation.notification.AHNotification;
 import com.aurelhubert.ahbottomnavigation.notification.AHNotificationHelper;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -413,6 +414,9 @@ public class AHBottomNavigation extends FrameLayout {
             final int itemIndex = i;
             AHBottomNavigationItem item = items.get(itemIndex);
 
+            boolean forceTint = item.getForceTint();
+            Log.w("WWW", "isClassic " + isClassic());
+
             View view = inflater.inflate(R.layout.bottom_navigation_item, this, false);
             FrameLayout container = (FrameLayout) view.findViewById(R.id.bottom_navigation_container);
             ImageView icon = (ImageView) view.findViewById(R.id.bottom_navigation_item_icon);
@@ -469,6 +473,10 @@ public class AHBottomNavigation extends FrameLayout {
             }
 
             title.setTextSize(TypedValue.COMPLEX_UNIT_PX, current ? activeSize : inactiveSize);
+            boolean isCurrentlyActive = currentItem == i;
+
+            iconDrawable = getCurrentIcon(isCurrentlyActive, forceTint, items.get(i));
+
 
             if (itemsEnabledStates[i]) {
                 view.setOnClickListener(new OnClickListener() {
@@ -477,15 +485,12 @@ public class AHBottomNavigation extends FrameLayout {
                         updateItems(itemIndex, true);
                     }
                 });
-                iconDrawable = forceTint ? AHHelper.getTintDrawable(items.get(i).getDrawable(context),
-                        current ? itemActiveColor : itemInactiveColor, forceTint) : items.get(i).getDrawable(context);
                 icon.setImageDrawable(iconDrawable);
                 title.setTextColor(current ? itemActiveColor : itemInactiveColor);
                 view.setSoundEffectsEnabled(soundEffectsEnabled);
                 view.setEnabled(true);
             } else {
-                iconDrawable = forceTint ? AHHelper.getTintDrawable(items.get(i).getDrawable(context),
-                        itemDisableColor, forceTint) : items.get(i).getDrawable(context);
+
                 icon.setImageDrawable(iconDrawable);
                 title.setTextColor(itemDisableColor);
                 view.setClickable(true);
@@ -508,6 +513,7 @@ public class AHBottomNavigation extends FrameLayout {
     private void createSmallItems(LinearLayout linearLayout) {
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
 
         float height = resources.getDimension(R.dimen.bottom_navigation_height);
         float minWidth = resources.getDimension(R.dimen.bottom_navigation_small_inactive_min_width);
@@ -535,9 +541,10 @@ public class AHBottomNavigation extends FrameLayout {
 
         Drawable iconDrawable;
         for (int i = 0; i < items.size(); i++) {
-
             final int itemIndex = i;
             AHBottomNavigationItem item = items.get(itemIndex);
+            boolean forceTint = item.getForceTint();
+            Log.w("WWW", "isClassic " + isClassic());
 
             View view = inflater.inflate(R.layout.bottom_navigation_small_item, this, false);
             ImageView icon = (ImageView) view.findViewById(R.id.bottom_navigation_small_item_icon);
@@ -598,9 +605,10 @@ public class AHBottomNavigation extends FrameLayout {
                 }
             }
 
+            boolean isCurrentlyActive = currentItem == i;
+            iconDrawable = getCurrentIcon(isCurrentlyActive, forceTint, items.get(i));
+
             if (itemsEnabledStates[i]) {
-                iconDrawable = forceTint ? AHHelper.getTintDrawable(items.get(i).getDrawable(context),
-                        currentItem == i ? itemActiveColor : itemInactiveColor, forceTint) : items.get(i).getDrawable(context);
                 icon.setImageDrawable(iconDrawable);
                 title.setTextColor(currentItem == i ? itemActiveColor : itemInactiveColor);
                 title.setAlpha(currentItem == i ? 1 : 0);
@@ -613,8 +621,6 @@ public class AHBottomNavigation extends FrameLayout {
                 view.setSoundEffectsEnabled(soundEffectsEnabled);
                 view.setEnabled(true);
             } else {
-                iconDrawable = forceTint ? AHHelper.getTintDrawable(items.get(i).getDrawable(context),
-                        itemDisableColor, forceTint) : items.get(i).getDrawable(context);
                 icon.setImageDrawable(iconDrawable);
                 title.setTextColor(itemDisableColor);
                 title.setAlpha(0);
@@ -677,7 +683,9 @@ public class AHBottomNavigation extends FrameLayout {
             if (selectedBackgroundVisible) {
                 view.setSelected(i == itemIndex);
             }
+            boolean forceTint = items.get(i).getForceTint();
 
+            // if selected
             if (i == itemIndex) {
 
                 final TextView title = (TextView) view.findViewById(R.id.bottom_navigation_item_title);
@@ -692,6 +700,8 @@ public class AHBottomNavigation extends FrameLayout {
                 if (forceTint) {
                     AHHelper.updateDrawableColor(context, items.get(itemIndex).getDrawable(context), icon,
                             itemInactiveColor, itemActiveColor, forceTint);
+                } else {
+                    icon.setImageDrawable(items.get(itemIndex).getDrawable(context));
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && colored) {
@@ -741,6 +751,7 @@ public class AHBottomNavigation extends FrameLayout {
                     backgroundColorView.setBackgroundColor(Color.TRANSPARENT);
                 }
 
+                // if lost selection
             } else if (i == currentItem) {
 
                 final TextView title = (TextView) view.findViewById(R.id.bottom_navigation_item_title);
@@ -752,9 +763,14 @@ public class AHBottomNavigation extends FrameLayout {
                 AHHelper.updateLeftMargin(notification, notificationActiveMarginLeft, notificationInactiveMarginLeft);
                 AHHelper.updateTextColor(title, itemActiveColor, itemInactiveColor);
                 AHHelper.updateTextSize(title, activeSize, inactiveSize);
+
+                // if use tintable icon
                 if (forceTint) {
                     AHHelper.updateDrawableColor(context, items.get(currentItem).getDrawable(context), icon,
                             itemActiveColor, itemInactiveColor, forceTint);
+                } else {
+                    Drawable greyscaleDrawable = convertToGrayscale(items.get(currentItem).getDrawable(context));
+                    icon.setImageDrawable(greyscaleDrawable);
                 }
             }
         }
@@ -770,6 +786,39 @@ public class AHBottomNavigation extends FrameLayout {
             }
             backgroundColorView.setBackgroundColor(Color.TRANSPARENT);
         }
+    }
+
+
+
+    private Drawable getCurrentIcon(boolean isActive, boolean forceTint, AHBottomNavigationItem item) {
+        Drawable icon = item.getDrawable(context);
+        if (forceTint) {
+            icon = isActive
+                    ? AHHelper.getTintDrawable(icon, itemActiveColor, true)
+                    : AHHelper.getTintDrawable(icon, itemInactiveColor, true);
+        } else {
+            icon = isActive
+                    ? icon
+                    : convertToGrayscale(icon);
+        }
+
+        return icon;
+    }
+
+
+    protected Drawable convertToGrayscale(Drawable drawable)
+    {
+        ColorMatrix matrix = new ColorMatrix();
+        matrix.setSaturation(0);
+
+        Drawable clone = drawable.mutate().getConstantState().newDrawable();
+
+        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+
+        clone.setColorFilter(filter);
+        clone.setAlpha(120);
+
+        return clone;
     }
 
     /**
